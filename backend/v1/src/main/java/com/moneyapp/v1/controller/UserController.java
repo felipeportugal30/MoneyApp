@@ -1,6 +1,7 @@
 package com.moneyapp.v1.controller;
 
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import com.moneyapp.v1.dto.LoginRequestDTO;
 import com.moneyapp.v1.dto.LoginResponseDTO;
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
     
     @PostMapping("/create")
-    public RegisterResponseDTO createUser(@RequestBody RegisterRequestDTO request) {
+    public RegisterResponseDTO createUser(@Valid @RequestBody RegisterRequestDTO request) {
         return userService.createUser(request);
     }
 

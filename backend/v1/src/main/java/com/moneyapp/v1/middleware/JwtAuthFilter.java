@@ -1,7 +1,6 @@
 package com.moneyapp.v1.middleware;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,23 +45,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             String email = jwtService.extractEmail(token);
 
-            if (email != null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User user = userRepository.findByEmail(email).orElse(null);
 
-                if (user != null) {
+                if (user != null && jwtService.isTokenValid(token, user)) {
                     UsernamePasswordAuthenticationToken auth =
                             new UsernamePasswordAuthenticationToken(
                                     user,
                                     null,
-                                    new ArrayList<>()
+                                    user.getAuthorities()
                             );
 
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
         } catch (JwtException e) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
+
+        filterChain.doFilter(request, response);
     }
 }

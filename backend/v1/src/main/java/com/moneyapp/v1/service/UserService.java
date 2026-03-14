@@ -5,6 +5,8 @@ import com.moneyapp.v1.dto.LoginRequestDTO;
 import com.moneyapp.v1.dto.LoginResponseDTO;
 import com.moneyapp.v1.dto.RegisterRequestDTO;
 import com.moneyapp.v1.dto.RegisterResponseDTO;
+import com.moneyapp.v1.exception.InvalidRequestException;
+import com.moneyapp.v1.exception.NotFoundException;
 import com.moneyapp.v1.model.User;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +22,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public RegisterResponseDTO createUser(RegisterRequestDTO request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new InvalidRequestException("Email já está em uso");
+        }
+        
         User user = new User();
         
         user.setName(request.getName());
@@ -41,10 +47,10 @@ public class UserService {
 
     public LoginResponseDTO loginUser(LoginRequestDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail()).
-            orElseThrow(() -> new RuntimeException("Email or password invalids."));
+            orElseThrow(() -> new NotFoundException("Email not found."));
         
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Email or password invalids.");
+            throw new InvalidRequestException("Invalid password.");
         }
 
         String token = jwtService.generateToken(user);
@@ -56,5 +62,17 @@ public class UserService {
                 user.getEmail(),
                 token
         );
+    }
+
+    public User getUserByEmail(String email) {
+        
+        if (email == null) {
+            throw new InvalidRequestException("Email can't be null");
+        }
+
+        User user = userRepository.findByEmail(email).
+            orElseThrow(() -> new NotFoundException("Email not found."));
+
+        return user;
     }
 }
