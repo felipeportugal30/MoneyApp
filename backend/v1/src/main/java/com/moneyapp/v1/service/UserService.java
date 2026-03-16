@@ -1,10 +1,10 @@
 package com.moneyapp.v1.service;
 
 import com.moneyapp.v1.repository.UserRepository;
-import com.moneyapp.v1.dto.LoginRequestDTO;
-import com.moneyapp.v1.dto.LoginResponseDTO;
-import com.moneyapp.v1.dto.RegisterRequestDTO;
-import com.moneyapp.v1.dto.RegisterResponseDTO;
+import com.moneyapp.v1.dto.LoginRequestDto;
+import com.moneyapp.v1.dto.LoginResponseDto;
+import com.moneyapp.v1.dto.RegisterRequestDto;
+import com.moneyapp.v1.dto.RegisterResponseDto;
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
 import com.moneyapp.v1.model.User;
@@ -21,9 +21,9 @@ public class UserService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    public RegisterResponseDTO createUser(RegisterRequestDTO request) {
+    public RegisterResponseDto createUser(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new InvalidRequestException("Email já está em uso");
+            throw new InvalidRequestException("Email already in use");
         }
         
         User user = new User();
@@ -36,7 +36,7 @@ public class UserService {
 
         String token = jwtService.generateToken(newUser);
         
-        return new RegisterResponseDTO(
+        return new RegisterResponseDto(
             "User created successfully",
             newUser.getId(),
             newUser.getEmail(),
@@ -45,7 +45,7 @@ public class UserService {
         );
     }
 
-    public LoginResponseDTO loginUser(LoginRequestDTO dto) {
+    public LoginResponseDto loginUser(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail()).
             orElseThrow(() -> new NotFoundException("Email not found."));
         
@@ -55,7 +55,7 @@ public class UserService {
 
         String token = jwtService.generateToken(user);
         
-        return new LoginResponseDTO(
+        return new LoginResponseDto(
                 "Login successfully",
                 user.getId(),
                 user.getName(),

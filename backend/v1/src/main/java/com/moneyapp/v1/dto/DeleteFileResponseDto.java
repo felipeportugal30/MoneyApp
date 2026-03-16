@@ -9,10 +9,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class LoginResponseDTO {
+public class DeleteFileResponseDto {
     private String message;
     private UUID id;
-    private String name;
-    private String email;
-    private String token;
+    private String filename;
+    private String hash;
+    private Long size;
+    private String path;
 }

@@ -9,10 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class RegisterResponseDTO {
-    private String message;
+public class FileListResponseDto {
     private UUID id;
-    private String email;
-    private String name;
-    private String token;
+    private String filename;
+    private String hash;
+    private Long size;
+    private String path;
 }

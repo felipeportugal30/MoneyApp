@@ -2,6 +2,7 @@ package com.moneyapp.v1.service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,8 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("name", user.getName())
+                .claim("userId", user.getId())
+                .claim("role", user.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(getSignKey())
@@ -44,6 +47,16 @@ public class JwtService {
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    public UUID extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return UUID.fromString(claims.get("userId", String.class));
+    }
+
+    public String extractUserRole(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("role", String.class);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

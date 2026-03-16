@@ -3,10 +3,10 @@ package com.moneyapp.v1.controller;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
-import com.moneyapp.v1.dto.LoginRequestDTO;
-import com.moneyapp.v1.dto.LoginResponseDTO;
-import com.moneyapp.v1.dto.RegisterRequestDTO;
-import com.moneyapp.v1.dto.RegisterResponseDTO;
+import com.moneyapp.v1.dto.LoginRequestDto;
+import com.moneyapp.v1.dto.LoginResponseDto;
+import com.moneyapp.v1.dto.RegisterRequestDto;
+import com.moneyapp.v1.dto.RegisterResponseDto;
 import com.moneyapp.v1.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,12 +19,12 @@ public class UserController {
     private final UserService userService;
     
     @PostMapping("/create")
-    public RegisterResponseDTO createUser(@Valid @RequestBody RegisterRequestDTO request) {
+    public RegisterResponseDto createUser(@Valid @RequestBody RegisterRequestDto request) {
         return userService.createUser(request);
     }
 
     @PostMapping("/login")
-    public LoginResponseDTO loginUser(@RequestBody LoginRequestDTO dto) {
+    public LoginResponseDto loginUser(@RequestBody LoginRequestDto dto) {
         return userService.loginUser(dto);
     }
 }
