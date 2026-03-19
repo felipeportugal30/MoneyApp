@@ -31,7 +31,8 @@ public class UserService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        user.setRole(request.getRole());
+        
         User newUser = userRepository.save(user);
 
         String token = jwtService.generateToken(newUser);
@@ -41,6 +42,7 @@ public class UserService {
             newUser.getId(),
             newUser.getEmail(),
             newUser.getName(),
+            newUser.getRole(),
             token
         );
     }

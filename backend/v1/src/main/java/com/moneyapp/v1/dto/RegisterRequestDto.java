@@ -3,7 +3,11 @@ package com.moneyapp.v1.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import com.moneyapp.v1.enums.Role;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 @Getter
@@ -16,6 +20,9 @@ public class RegisterRequestDto {
 
     @NotBlank(message = "Email is required")
     private String email;
+
+    @NotNull(message = "Role is required")
+    private Role role;
 
     @NotBlank(message = "Password is required")
     @Pattern(

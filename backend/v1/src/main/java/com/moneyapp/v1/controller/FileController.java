@@ -33,7 +33,7 @@ public class FileController {
     private final FileService fileService;
     
     @PostMapping("/upload")
-    @PreAuthorize("hashAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<UploadFileResponseDto> uploadFile(
         @RequestParam("files") List<MultipartFile> files, 
         @AuthenticationPrincipal User user
@@ -42,7 +42,7 @@ public class FileController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hashAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<FileListResponseDto>> listUserFiles(
         @AuthenticationPrincipal User user
     ) {
@@ -50,7 +50,7 @@ public class FileController {
     }
 
     @DeleteMapping("/delete/{file_id}")
-    @PreAuthorize("hashAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DeleteFileResponseDto> deleteUserFile(
         @PathVariable UUID file_id,
         @AuthenticationPrincipal User user

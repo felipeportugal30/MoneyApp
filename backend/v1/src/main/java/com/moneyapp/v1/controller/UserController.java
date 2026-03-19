@@ -1,5 +1,6 @@
 package com.moneyapp.v1.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -19,12 +20,12 @@ public class UserController {
     private final UserService userService;
     
     @PostMapping("/create")
-    public RegisterResponseDto createUser(@Valid @RequestBody RegisterRequestDto request) {
-        return userService.createUser(request);
+    public ResponseEntity<RegisterResponseDto> createUser(@Valid @RequestBody RegisterRequestDto request) {
+        return ResponseEntity.status(201).body(userService.createUser(request));
     }
 
     @PostMapping("/login")
-    public LoginResponseDto loginUser(@RequestBody LoginRequestDto dto) {
-        return userService.loginUser(dto);
+    public ResponseEntity<LoginResponseDto> loginUser(@RequestBody LoginRequestDto dto) {
+        return ResponseEntity.ok(userService.loginUser(dto));
     }
 }
