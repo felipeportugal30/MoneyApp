@@ -49,6 +49,15 @@ public class FileController {
         return ResponseEntity.ok(fileService.listFiles(user));
     }
 
+    @GetMapping("/{file_id})")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<FileListResponseDto> listFile(
+        @PathVariable UUID file_id,
+        @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(fileService.listFile(user, file_id));
+    }
+
     @DeleteMapping("/delete/{file_id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DeleteFileResponseDto> deleteUserFile(

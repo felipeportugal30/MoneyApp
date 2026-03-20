@@ -101,6 +101,20 @@ public class FileService {
         )).toList();
     }
 
+    public FileListResponseDto listFile(User user, UUID file_id) {
+
+        File file = fileRepository.findByIdAndUser(file_id, user)
+            .orElseThrow(() -> new NotFoundException("File not found."));
+        
+        return new FileListResponseDto(
+            file.getId(),
+            file.getFilename(),
+            file.getHash(),
+            file.getSize(),
+            file.getPath()
+        );
+    }
+
     public DeleteFileResponseDto deleteFile(UUID fileId, User user) throws IOException {
         File file = fileRepository.findByIdAndUser(fileId, user)
             .orElseThrow(() -> new NotFoundException("File not found"));
