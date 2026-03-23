@@ -6,6 +6,7 @@ import com.moneyapp.v1.dto.LoginResponseDto;
 import com.moneyapp.v1.dto.RegisterRequestDto;
 import com.moneyapp.v1.dto.RegisterResponseDto;
 import com.moneyapp.v1.dto.UpdateUserRequestDto;
+import com.moneyapp.v1.dto.UpdateUserRoleRequestDto;
 import com.moneyapp.v1.dto.UserResponseDto;
 import com.moneyapp.v1.enums.Role;
 import com.moneyapp.v1.exception.InvalidRequestException;
@@ -128,7 +129,26 @@ public class UserService {
             user.getDeletedAt(),
             user.getActive()
         );
-        
+    }
+
+    public UserResponseDto updateUserRole(UpdateUserRoleRequestDto request, UUID user_id) {
+        User userModified = userRepository.findById(user_id)
+            .orElseThrow(() -> new NotFoundException("User not found."));
+
+        userModified.setRole(request.getRole());
+        userModified.setUpdatedAt(new Date());
+        userRepository.save(userModified);
+
+        return new UserResponseDto(
+            userModified.getId(),
+            userModified.getEmail(),
+            userModified.getName(),
+            userModified.getRole(),
+            userModified.getCreatedAt(),
+            userModified.getUpdatedAt(),
+            userModified.getDeletedAt(),
+            userModified.getActive()
+        );
     }
 
     public UserResponseDto deleteUser(UUID user_id, User userRequest) {
@@ -161,15 +181,4 @@ public class UserService {
         );
     }
 
-    public User getUserByEmail(String email) {
-        
-        if (email == null) {
-            throw new InvalidRequestException("Email can't be null");
-        }
-
-        User user = userRepository.findByEmail(email).
-            orElseThrow(() -> new NotFoundException("Email not found."));
-
-        return user;
-    }
 }

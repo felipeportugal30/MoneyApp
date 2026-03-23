@@ -14,6 +14,7 @@ import com.moneyapp.v1.dto.LoginResponseDto;
 import com.moneyapp.v1.dto.RegisterRequestDto;
 import com.moneyapp.v1.dto.RegisterResponseDto;
 import com.moneyapp.v1.dto.UpdateUserRequestDto;
+import com.moneyapp.v1.dto.UpdateUserRoleRequestDto;
 import com.moneyapp.v1.dto.UserResponseDto;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.service.UserService;
@@ -54,12 +55,22 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
     public ResponseEntity<UserResponseDto> updateUser(
         @AuthenticationPrincipal User user,
         @RequestBody UpdateUserRequestDto request
     ) {
         return ResponseEntity.ok(userService.updateUser(user, request));
+    }
+
+    @PutMapping("/update/role/{user_id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<UserResponseDto> updateUserRole(
+        @AuthenticationPrincipal User user,
+        @RequestBody UpdateUserRoleRequestDto request,
+        @PathVariable UUID user_id
+    ) {
+        return ResponseEntity.ok(userService.updateUserRole(request, user_id));
     }
 
     @DeleteMapping("/delete/{user_id}")
@@ -68,6 +79,6 @@ public class UserController {
         @AuthenticationPrincipal User user,
         @PathVariable UUID user_id
     ) {
-        return ResponseEntity.ok(userService.deleteUser(user_id,user));
+        return ResponseEntity.ok(userService.deleteUser(user_id, user));
     }
 }
