@@ -13,10 +13,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "expenses")
+@Table(name = "transaction")
 @Getter
 @Setter
-public class Expense {
+public class Transaction {
     
     @Id 
     @GeneratedValue(strategy = GenerationType.UUID)

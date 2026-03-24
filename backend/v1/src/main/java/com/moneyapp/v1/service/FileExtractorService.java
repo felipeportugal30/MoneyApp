@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
-import com.moneyapp.v1.model.Expense;
+import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.File;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.repository.FileRepository;
@@ -25,17 +25,17 @@ public class FileExtractorService {
     private final CsvExtractorService csvExtractor;
     private final ImageExtractorService imageExtractor;
     private final GroqService groqService;
-    private final ExpenseService expenseService;
+    private final TransactionService transactionService;
     private final FileRepository fileRepository;
 
-    public List<Expense> process(UUID file_id, User user) throws Exception, IOException, TesseractException {
+    public List<Transaction> process(UUID file_id, User user) throws Exception, IOException, TesseractException {
         File fileEntity = fileRepository.findByIdAndUser(file_id, user)
                 .orElseThrow(() -> new NotFoundException("File not found."));
 
         String rawText = extractText(fileEntity);
-        String json = groqService.extractExpenses(rawText, "portuguese");
+        String json = groqService.extractTransactions(rawText, "portuguese");
 
-        return expenseService.saveExpenses(json, fileEntity, user);
+        return transactionService.saveTransactions(json, fileEntity, user);
     }
 
     public String extractText(File file) throws IOException, TesseractException {

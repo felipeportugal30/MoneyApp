@@ -20,7 +20,7 @@ public class GroqService {
             .build();
 
     @SuppressWarnings("unchecked")
-    public String extractExpenses(String rawText, String file_language) {
+    public String extractTransactions(String rawText, String file_language) {
         String prompt = """
         You are an AI specialized in financial data extraction.
 
