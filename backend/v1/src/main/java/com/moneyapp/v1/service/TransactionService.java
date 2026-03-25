@@ -2,7 +2,9 @@ package com.moneyapp.v1.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,13 @@ import com.moneyapp.v1.repository.TransactionRepository;
 import com.moneyapp.v1.specification.TransactionSpecification;
 import com.moneyapp.v1.dto.TransactionFilterDto;
 import com.moneyapp.v1.dto.TransactionResponseDTO;
+import com.moneyapp.v1.dto.UpdateTransactionDto;
 import com.moneyapp.v1.enums.ExpenseCategory;
 import com.moneyapp.v1.enums.Role;
 import com.moneyapp.v1.enums.TransactionType;
 import com.moneyapp.v1.exception.InvalidRequestException;
+import com.moneyapp.v1.exception.NotFoundException;
+import com.moneyapp.v1.exception.UnauthorizedException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -78,5 +83,35 @@ public class TransactionService {
         spec = spec.and(TransactionSpecification.byDateBetween(filter.getStartDate(), filter.getEndDate()));
 
         return transactionRepository.findAll(spec);
+    }
+
+    public Transaction updateTransaction(User user, UUID transaction_id, UpdateTransactionDto request) {
+        Transaction transaction = transactionRepository.findById(transaction_id)
+            .orElseThrow(() -> new NotFoundException("Transaction not found."));
+
+        if (transaction.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
+            throw new UnauthorizedException("User is not authorize to make this action.");
+        }
+
+        transaction.setCategory(request.getCategory());
+        transaction.setUpdatedAt(new Date());
+        transactionRepository.save(transaction);
+
+        return transaction; 
+    }
+
+    public Transaction deleteTransaction(User user, UUID transaction_id) {
+        Transaction transaction = transactionRepository.findById(transaction_id)
+            .orElseThrow(() -> new NotFoundException("Transaction not found."));
+
+        if (transaction.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
+            throw new UnauthorizedException("User is not authorize to make this action.");
+        }
+
+        transaction.setActive(false);
+        transaction.setDeletedAt(new Date());
+        transactionRepository.save(transaction);
+        
+        return transaction;
     }
 }

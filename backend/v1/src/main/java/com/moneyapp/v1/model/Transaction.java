@@ -37,6 +37,9 @@ public class Transaction {
     @Column
     private String description;
 
+    @Column(nullable = false)
+    private boolean active = true;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -47,4 +50,10 @@ public class Transaction {
 
     @Column(nullable = false)
     private Date createdAt = new Date();
+
+    @Column(nullable = true)
+    private Date updatedAt = new Date();
+
+    @Column(nullable = true)
+    private Date deletedAt = new Date();
 }
