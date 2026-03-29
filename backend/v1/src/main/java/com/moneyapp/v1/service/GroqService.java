@@ -12,7 +12,7 @@ import org.springframework.core.ParameterizedTypeReference;
 @Service
 public class GroqService {
 
-    @Value("${groq.api.key}")
+    @Value("${llm.api.key}")
     private String apiKey;
 
     private final WebClient webClient = WebClient.builder()
