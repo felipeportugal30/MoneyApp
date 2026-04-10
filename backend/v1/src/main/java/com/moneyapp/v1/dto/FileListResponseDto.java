@@ -1,5 +1,6 @@
 package com.moneyapp.v1.dto;
 
+import java.util.Date;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -15,4 +16,5 @@ public class FileListResponseDto {
     private String hash;
     private Long size;
     private String path;
+    private Date createdAt;
 }

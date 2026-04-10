@@ -18,6 +18,7 @@ import com.moneyapp.v1.dto.FileListResponseDto;
 import com.moneyapp.v1.dto.UploadFileResponseDto;
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
+import com.moneyapp.v1.factory.FileFactory;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.model.File;
 import com.moneyapp.v1.repository.FileRepository;
@@ -30,21 +31,31 @@ import lombok.RequiredArgsConstructor;
 public class FileService {
     
     private final FileRepository fileRepository;
+    private final FileFactory fileFactory;
 
     @Value("${upload.dir:uploads}")
     private String uploadDir;
     
-    public UploadFileResponseDto uploadFile(List<MultipartFile> files, User user) throws IOException {
+    public UploadFileResponseDto uploadFile(List<MultipartFile> files, List<String> frontHashes, User user) throws IOException {
 
         List<UUID> ids = new ArrayList<>();
         List<String> filenames = new ArrayList<>();
         List<Double> sizes = new ArrayList<>();
 
-        for (MultipartFile multipartFile : files) {
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile multipartFile = files.get(i);
+
             if (multipartFile.isEmpty()) continue;
 
             byte[] bytes = multipartFile.getBytes();
             String hash = generateHash(bytes);
+            String frontHash = frontHashes.get(i);
+
+            if (!hash.equals(frontHash)) {
+                throw new InvalidRequestException(
+                    "File corrupted: " +multipartFile.getOriginalFilename()
+                );
+            }
 
             if (fileRepository.findByHash(hash).isPresent()) {
                 continue;
@@ -60,12 +71,7 @@ public class FileService {
             Path filePath = dirPath.resolve(fileName);
             Files.write(filePath, multipartFile.getBytes());
 
-            File file = new File();
-            file.setFilename(multipartFile.getOriginalFilename());
-            file.setPath(filePath.toString());
-            file.setHash(hash);
-            file.setSize(multipartFile.getSize());
-            file.setUser(user);
+            File file = fileFactory.create(multipartFile, hash, filePath, user);
 
             File saved = fileRepository.save(file);
 
@@ -97,7 +103,8 @@ public class FileService {
             f.getFilename(),
             f.getHash(),
             f.getSize(),
-            f.getPath()
+            f.getPath(),
+            f.getCreatedAt()
         )).toList();
     }
 
@@ -111,7 +118,8 @@ public class FileService {
             file.getFilename(),
             file.getHash(),
             file.getSize(),
-            file.getPath()
+            file.getPath(),
+            file.getCreatedAt()
         );
     }
 
@@ -137,7 +145,7 @@ public class FileService {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return HexFormat.of().formatHex(digest.digest(bytes));
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar hash", e);
+            throw new RuntimeException("Erro to generate hash", e);
         }
     }
 

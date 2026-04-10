@@ -18,7 +18,7 @@ const AppSidebar = () => {
           <div className="w-9 h-9 rounded-lg bg-sidebar-primary flex items-center justify-center">
             <FileText className="w-4 h-4 text-sidebar-primary-foreground" />
           </div>
-          <span className="text-lg font-bold">DocVault</span>
+          <span className="text-lg font-bold">MoneyApp</span>
         </div>
       </div>
 

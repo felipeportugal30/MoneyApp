@@ -9,11 +9,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.File;
-import com.moneyapp.v1.model.User;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction>{
-    List<Transaction> findByUser(User user);
-    List<Transaction> findByUserAndDate(User user, YearMonth referenceDate);
+    List<Transaction> findByFileAndDate(File file, YearMonth referenceDate);
+    List<Transaction> findByDate(YearMonth referenceDate);
     List<Transaction> findByFile(File file);
-    List<Transaction> findByFileIdAndUser(UUID fileId, User user);
 } 

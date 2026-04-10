@@ -56,7 +56,6 @@ public class TransactionService {
             transaction.setType(TransactionType.valueOf(item.type()));
             transaction.setCategory(ExpenseCategory.valueOf(item.category()));
             transaction.setDescription(item.description());
-            transaction.setUser(user);
             transaction.setFile(file);
             return transaction;
         }).toList();
@@ -88,8 +87,10 @@ public class TransactionService {
     public Transaction updateTransaction(User user, UUID transaction_id, UpdateTransactionDto request) {
         Transaction transaction = transactionRepository.findById(transaction_id)
             .orElseThrow(() -> new NotFoundException("Transaction not found."));
+        
+        File file = transaction.getFile();
 
-        if (transaction.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
+        if (file.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
             throw new UnauthorizedException("User is not authorize to make this action.");
         }
 
@@ -104,7 +105,9 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(transaction_id)
             .orElseThrow(() -> new NotFoundException("Transaction not found."));
 
-        if (transaction.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
+        File file = transaction.getFile();
+
+        if (file.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
             throw new UnauthorizedException("User is not authorize to make this action.");
         }
 

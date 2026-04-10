@@ -22,7 +22,8 @@ const Login = () => {
     
     setLoading(true);
     setError(null);
-
+    
+    // Configurar para receber token via cookies
     try {
       const response = await fetch(`${API_URL}/users/login`, {
         method: "POST",
@@ -41,11 +42,30 @@ const Login = () => {
       localStorage.setItem("token", data.token);
 
       navigate("/dashboard");
+
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+    /*
+   // MOCKADO
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const fakeResponse = {
+        token: "fake-token-123",
+      };
+
+      localStorage.setItem("token", fakeResponse.token);
+
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError("Erro fake");
+    } finally {
+      setLoading(false);
+    }
+    */
   };
 
   return (
@@ -90,7 +110,7 @@ const Login = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

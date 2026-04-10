@@ -41,10 +41,6 @@ public class Transaction {
     private boolean active = true;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 

@@ -35,10 +35,11 @@ public class FileController {
     @PostMapping("/upload")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<UploadFileResponseDto> uploadFile(
-        @RequestParam("files") List<MultipartFile> files, 
+        @RequestParam("files") List<MultipartFile> files,
+        @RequestParam("hashes") List<String> hashes,
         @AuthenticationPrincipal User user
     ) throws IOException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(fileService.uploadFile(files, user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(fileService.uploadFile(files, hashes, user));
     }
 
     @GetMapping("/me")
