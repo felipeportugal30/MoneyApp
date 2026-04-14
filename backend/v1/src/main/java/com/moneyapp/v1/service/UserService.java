@@ -12,6 +12,7 @@ import com.moneyapp.v1.enums.Role;
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
 import com.moneyapp.v1.exception.UnauthorizedException;
+import com.moneyapp.v1.factory.UserFactory;
 import com.moneyapp.v1.model.User;
 
 import java.util.Date;
@@ -29,18 +30,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final UserFactory userFactory;
 
     public RegisterResponseDto createUser(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new InvalidRequestException("Email already in use");
         }
         
-        User user = new User();
-        
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+        String password = passwordEncoder.encode((request.getPassword()));
+
+        User user = userFactory.create(request.getName(), request.getEmail(), password, request.getRole());
         
         User newUser = userRepository.save(user);
 
