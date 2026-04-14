@@ -1,5 +1,6 @@
 package com.moneyapp.v1.dto;
 
+import java.util.Date;
 import java.util.UUID;
 
 import com.moneyapp.v1.enums.Role;
@@ -18,4 +19,5 @@ public class RegisterResponseDto {
     private String name;
     private Role role;
     private String token;
+    private Date createdAt;
 }

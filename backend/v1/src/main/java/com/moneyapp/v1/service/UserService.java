@@ -51,7 +51,8 @@ public class UserService {
             newUser.getEmail(),
             newUser.getName(),
             newUser.getRole(),
-            token
+            token,
+            newUser.getCreatedAt()
         );
     }
 
@@ -74,7 +75,9 @@ public class UserService {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                token
+                user.getRole(),
+                token,
+                user.getCreatedAt()
         );
     }
 

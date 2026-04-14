@@ -17,14 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "@/config/api";
+import type { UserData } from "@/components/User";
 
 type Section = "profile" | "password" | "danger" | null;
-
-const MOCK_USER = {
-  name: "João Mendes",
-  email: "joao@example.com",
-  createdAt: "January 2025",
-};
 
 function SectionToggle({
   open,
@@ -86,6 +81,14 @@ const Settings = () => {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  const userString = localStorage.getItem("user");
+    if (!userString) {
+      console.error("User not found");
+      setDeleting(false);
+      return;
+    }
+  const user: UserData = JSON.parse(userString);
+
   const toggle = (s: Section) => setOpenSection((prev) => (prev === s ? null : s));
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -125,7 +128,7 @@ const Settings = () => {
     if (newPw.length < 8) { setPwError("Password must be at least 8 characters."); return; }
     setSavingPw(true);
     try {
-      await new Promise((r) => setTimeout(r, 700)); // replace with real API
+      await new Promise((r) => setTimeout(r, 700)); // ajustar com a API real
       setPwSaved(true);
       setCurrentPw(""); setNewPw(""); setConfirmPw("");
       setTimeout(() => setPwSaved(false), 3000);
@@ -137,10 +140,23 @@ const Settings = () => {
   const handleDeleteAccount = async () => {
     if (deleteConfirm !== "delete my account") return;
     setDeleting(true);
+    
     try {
-      await new Promise((r) => setTimeout(r, 1000)); // replace with real API
-      localStorage.removeItem("token");
+      const response = await fetch(`${API_URL}/users/delete/${user.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed deleting user");
+      }
+
       navigate("/login");
+
+    } catch (error) {
+      console.error(error);
     } finally {
       setDeleting(false);
     }
@@ -182,7 +198,7 @@ const Settings = () => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">{name}</p>
-                  <p className="text-xs text-muted-foreground">Member since {MOCK_USER.createdAt}</p>
+                  <p className="text-xs text-muted-foreground">Member since {user.createdAt.toDateString()}</p>
                 </div>
               </div>
 

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, FileText } from "lucide-react";
 import PresentationBar from "@/components/PresentationBar";
 import { API_URL } from "@/config/api";
+import { saveUser } from "@/components/User";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Login = () => {
 
       const data = await response.json();
 
-      localStorage.setItem("token", data.token);
+      saveUser(data)
 
       navigate("/dashboard");
 
