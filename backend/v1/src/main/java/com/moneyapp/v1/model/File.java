@@ -40,6 +40,13 @@ public class File {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
     @Column(nullable = false)
     private Date createdAt = new Date();
+
+    @Column(nullable = true)
+    private Date deletedAt;
 }

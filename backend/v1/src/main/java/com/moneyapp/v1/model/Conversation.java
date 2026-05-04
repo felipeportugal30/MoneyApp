@@ -34,7 +34,7 @@ public class Conversation {
     private String answer;
 
     @Column(nullable = true)
-    private int tokens;
+    private Integer tokens;
 
     @Column(nullable = false)
     private Date createdAt = new Date();

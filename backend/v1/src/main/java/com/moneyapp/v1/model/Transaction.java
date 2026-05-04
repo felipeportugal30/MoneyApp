@@ -28,9 +28,11 @@ public class Transaction {
     @Column(nullable = false)
     private LocalDate date;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExpenseCategory category;
 
@@ -44,12 +46,16 @@ public class Transaction {
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
     @Column(nullable = false)
     private Date createdAt = new Date();
 
     @Column(nullable = true)
-    private Date updatedAt = new Date();
+    private Date updatedAt;
 
     @Column(nullable = true)
-    private Date deletedAt = new Date();
+    private Date deletedAt;
 }

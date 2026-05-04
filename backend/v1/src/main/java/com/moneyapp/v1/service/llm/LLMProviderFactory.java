@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LLMProviderFactory {
     
-    @Value("${llm.provider:ollama}")
+    @Value("${llm.provider:local}")
     private String providerName;
 
     private final Map<String, LLMProvider> providers;

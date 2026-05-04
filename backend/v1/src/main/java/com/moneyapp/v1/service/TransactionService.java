@@ -57,6 +57,7 @@ public class TransactionService {
             transaction.setCategory(ExpenseCategory.valueOf(item.category()));
             transaction.setDescription(item.description());
             transaction.setFile(file);
+            transaction.setAccount(file.getAccount());
             return transaction;
         }).toList();
 
@@ -90,7 +91,9 @@ public class TransactionService {
         
         File file = transaction.getFile();
 
-        if (file.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
+        boolean isOwner = file.getUser().getId().equals(user.getId());
+        boolean isPrivileged = user.getRole() == Role.ADMIN || user.getRole() == Role.MODERATOR;
+        if (!isOwner && !isPrivileged) {
             throw new UnauthorizedException("User is not authorize to make this action.");
         }
 
@@ -107,7 +110,9 @@ public class TransactionService {
 
         File file = transaction.getFile();
 
-        if (file.getUser() != user || user.getRole() != Role.ADMIN || user.getRole() != Role.MODERATOR) {
+        boolean isOwner = file.getUser().getId().equals(user.getId());
+        boolean isPrivileged = user.getRole() == Role.ADMIN || user.getRole() == Role.MODERATOR;
+        if (!isOwner && !isPrivileged) {
             throw new UnauthorizedException("User is not authorize to make this action.");
         }
 
