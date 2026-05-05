@@ -11,6 +11,7 @@ import com.moneyapp.v1.dto.AccountUpdateRequestDto;
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
 import com.moneyapp.v1.exception.UnauthorizedException;
+import com.moneyapp.v1.factory.AccountFactory;
 import com.moneyapp.v1.model.Account;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.repository.AccountRepository;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountFactory accountFactory;
 
     public AccountResponseDto createAccount(AccountRequestDto request, User user) {
         boolean alreadyExists = accountRepository
@@ -36,14 +38,10 @@ public class AccountService {
             );
         }
 
-        Account account = new Account();
-        account.setUser(user);
-        account.setBankName(request.getBankName());
-        account.setAccountType(request.getAccountType());
-        account.setCurrency(request.getCurrency().toUpperCase());
-        account.setBalance(request.getBalance());
+        Account account = accountFactory.create(request.getBankName(), request.getAccountType(), request.getBalance(), request.getCurrency(), user);
 
         Account saved = accountRepository.save(account);
+        
         return toResponseDto(saved);
     }
 
