@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Pageable;
+
 import com.moneyapp.v1.enums.TransactionType;
 import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.File;
@@ -32,4 +34,29 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID>,
         @Param("start") LocalDate start,
         @Param("end") LocalDate end
     );
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t " +
+           "WHERE t.account.user = :user " +
+           "AND t.type = :type " +
+           "AND t.date >= :start AND t.date <= :end " +
+           "AND t.active = true")
+    java.math.BigDecimal sumByTypeAndUser(
+        @Param("user") User user,
+        @Param("type") TransactionType type,
+        @Param("start") LocalDate start,
+        @Param("end") LocalDate end
+    );
+
+    @Query("SELECT extract(year from t.date), extract(month from t.date), t.type, SUM(t.amount) " +
+           "FROM Transaction t " +
+           "WHERE t.account.user = :user AND t.date >= :start AND t.active = true " +
+           "GROUP BY extract(year from t.date), extract(month from t.date), t.type " +
+           "ORDER BY extract(year from t.date) ASC, extract(month from t.date) ASC")
+    List<Object[]> monthlyEvolutionForUser(
+        @Param("user") User user,
+        @Param("start") LocalDate start
+    );
+
+    @Query("SELECT t FROM Transaction t WHERE t.account.user = :user AND t.active = true ORDER BY t.date DESC, t.createdAt DESC")
+    List<Transaction> findRecentByUser(@Param("user") User user, Pageable pageable);
 } 
