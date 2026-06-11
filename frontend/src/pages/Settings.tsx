@@ -198,7 +198,7 @@ const Settings = () => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">{name}</p>
-                  <p className="text-xs text-muted-foreground">Member since {user.createdAt.toDateString()}</p>
+                  <p className="text-xs text-muted-foreground">Member since {new Date(user.createdAt).toDateString()}</p>
                 </div>
               </div>
 

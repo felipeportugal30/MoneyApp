@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.moneyapp.v1.model.Account;
 import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.File;
 import com.moneyapp.v1.model.User;
@@ -36,7 +37,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public List<Transaction> saveTransactions(String json, File file, User user) throws Exception {
+    public List<Transaction> saveTransactions(String json, File file, Account account, User user) throws Exception {
         String cleanJson = json
             .replaceAll("```json", "")
             .replaceAll("```", "")
@@ -57,7 +58,7 @@ public class TransactionService {
             transaction.setCategory(ExpenseCategory.valueOf(item.category()));
             transaction.setDescription(item.description());
             transaction.setFile(file);
-            transaction.setAccount(file.getAccount());
+            transaction.setAccount(account);
             return transaction;
         }).toList();
 

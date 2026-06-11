@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, FileText } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { API_URL } from "@/config/api";
 import PresentationBar from "@/components/PresentationBar";
 import { saveUser } from "@/components/User";
@@ -31,11 +31,12 @@ const Signup = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role: "USER" }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const text = await response.text();
+        const errorData = text ? JSON.parse(text) : {};
         throw new Error(errorData.message || "Failed to create account");
       }
 
@@ -60,10 +61,8 @@ const Signup = () => {
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-              <FileText className="w-5 h-5 text-accent-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-foreground">DocVault</span>
+            <img src="/logo-principal.svg" alt="MoneyApp" className="w-10 h-10" />
+            <span className="text-2xl font-bold text-foreground">MoneyApp</span>
           </div>
 
           <h2 className="text-2xl font-bold text-foreground mb-1">Create an account</h2>
@@ -104,7 +103,6 @@ const Signup = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={8}
                 />
                 <button
                   type="button"
@@ -114,7 +112,9 @@ const Signup = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+              <p className="text-xs text-muted-foreground">
+                Min. 6 chars, one uppercase letter, one number and one special character (@$!%*?&#)
+              </p>
             </div>
             {error && (
               <p className="text-sm text-red-500">{error}</p>

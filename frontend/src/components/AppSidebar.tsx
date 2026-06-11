@@ -1,9 +1,22 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Upload, FileText, Settings, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Upload,
+  Wallet,
+  ArrowLeftRight,
+  Lightbulb,
+  MessageSquare,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { label: "Accounts", icon: Wallet, path: "/accounts" },
+  { label: "Transactions", icon: ArrowLeftRight, path: "/transactions" },
   { label: "Documents", icon: Upload, path: "/documents" },
+  { label: "Insights", icon: Lightbulb, path: "/insights" },
+  { label: "AI Chat", icon: MessageSquare, path: "/chat" },
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
@@ -15,9 +28,7 @@ const AppSidebar = () => {
       {/* Logo */}
       <div className="p-6">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-sidebar-primary flex items-center justify-center">
-            <FileText className="w-4 h-4 text-sidebar-primary-foreground" />
-          </div>
+          <img src="/logo-principal.svg" alt="MoneyApp" className="w-9 h-9" />
           <span className="text-lg font-bold">MoneyApp</span>
         </div>
       </div>

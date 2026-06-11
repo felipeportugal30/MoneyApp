@@ -11,11 +11,11 @@ import java.util.UUID;
 public class TransactionSpecification {
 
     public static Specification<Transaction> byUser(User user) {
-        return (root, query, cb) -> cb.equal(root.get("user"), user);
+        return (root, query, cb) -> cb.equal(root.get("account").get("user"), user);
     }
 
     public static Specification<Transaction> byUserId(UUID userId) {
-        return (root, query, cb) -> cb.equal(root.get("user").get("id"), userId);
+        return (root, query, cb) -> cb.equal(root.get("account").get("user").get("id"), userId);
     }
 
     public static Specification<Transaction> byCategory(ExpenseCategory category) {

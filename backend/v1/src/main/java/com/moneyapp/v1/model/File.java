@@ -41,7 +41,7 @@ public class File {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = true)
     private Account account;
 
     @Column(nullable = false)

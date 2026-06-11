@@ -26,7 +26,7 @@ public class RegisterRequestDto {
 
     @NotBlank(message = "Password is required")
     @Pattern(
-        regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{6,}$",
+        regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#]).{6,}$",
         message = "Password must have at least 6 characters, one uppercase letter, one number and one special character"
     )
     private String password;

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, FileText } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import PresentationBar from "@/components/PresentationBar";
 import { API_URL } from "@/config/api";
 import { saveUser } from "@/components/User";
@@ -35,7 +35,9 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Invalid credentials");
+        const text = await response.text();
+        const errorData = text ? JSON.parse(text) : {};
+        throw new Error(errorData.message || "Invalid credentials");
       }
 
       const data = await response.json();
@@ -78,10 +80,8 @@ const Login = () => {
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-              <FileText className="w-5 h-5 text-accent-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-foreground">DocVault</span>
+            <img src="/logo-principal.svg" alt="MoneyApp" className="w-10 h-10" />
+            <span className="text-2xl font-bold text-foreground">MoneyApp</span>
           </div>
 
           <h2 className="text-2xl font-bold text-foreground mb-1">Welcome back</h2>

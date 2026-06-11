@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
+import com.moneyapp.v1.model.Account;
 import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.File;
 import com.moneyapp.v1.model.User;
+import com.moneyapp.v1.repository.AccountRepository;
 import com.moneyapp.v1.repository.FileRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,15 +29,19 @@ public class FileExtractorService {
     private final GroqService groqService;
     private final TransactionService transactionService;
     private final FileRepository fileRepository;
+    private final AccountRepository accountRepository;
 
-    public List<Transaction> process(UUID file_id, User user) throws Exception, IOException, TesseractException {
+    public List<Transaction> process(UUID file_id, UUID accountId, User user) throws Exception, IOException, TesseractException {
         File fileEntity = fileRepository.findByIdAndUser(file_id, user)
                 .orElseThrow(() -> new NotFoundException("File not found."));
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found."));
 
         String rawText = extractText(fileEntity);
         String json = groqService.extractTransactions(rawText, "portuguese");
 
-        return transactionService.saveTransactions(json, fileEntity, user);
+        return transactionService.saveTransactions(json, fileEntity, account, user);
     }
 
     public String extractText(File file) throws IOException, TesseractException {
@@ -52,7 +58,7 @@ public class FileExtractorService {
         } else {
             throw new IllegalArgumentException("Unsupported file format: " + filename);
         }
-        
+
         if (result == null || result.isBlank()) {
             throw new InvalidRequestException("Nothing was extracted from the file.");
         }

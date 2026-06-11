@@ -16,6 +16,7 @@ public class AccountFactory {
         account.setActive(true);
         account.setBalance(balance != null ? balance : BigDecimal.ZERO);
         account.setBankName(bankName);
+        account.setCurrency(currency != null ? currency.toUpperCase() : "BRL");
         account.setUser(user);
 
         return account;
