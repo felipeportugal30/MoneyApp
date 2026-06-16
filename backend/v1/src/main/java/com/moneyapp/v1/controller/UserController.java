@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> loginUser(@RequestBody LoginRequestDto dto) {
+    public ResponseEntity<LoginResponseDto> loginUser(@Valid @RequestBody LoginRequestDto dto) {
         return ResponseEntity.ok(userService.loginUser(dto));
     }
 
@@ -75,10 +75,11 @@ public class UserController {
 
     @DeleteMapping("/delete/{user_id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<UserResponseDto> deleteUser(
+    public ResponseEntity<Void> deleteUser(
         @AuthenticationPrincipal User user,
         @PathVariable UUID user_id
     ) {
-        return ResponseEntity.ok(userService.deleteUser(user_id, user));
+        userService.deleteUser(user_id, user);
+        return ResponseEntity.noContent().build();
     }
 }

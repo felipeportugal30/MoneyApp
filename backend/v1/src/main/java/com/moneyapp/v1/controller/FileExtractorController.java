@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.moneyapp.v1.model.Transaction;
+import com.moneyapp.v1.dto.TransactionDto;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.service.FileExtractorService;
 
@@ -27,7 +27,7 @@ public class FileExtractorController {
 
     @PostMapping("/{file_id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<Transaction>> extractFile(
+    public ResponseEntity<List<TransactionDto>> extractFile(
         @PathVariable UUID file_id,
         @RequestParam UUID accountId,
         @AuthenticationPrincipal User user

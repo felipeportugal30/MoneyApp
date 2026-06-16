@@ -50,7 +50,7 @@ public class FileController {
         return ResponseEntity.ok(fileService.listFiles(user));
     }
 
-    @GetMapping("/{file_id})")
+    @GetMapping("/{file_id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<FileListResponseDto> listFile(
         @PathVariable UUID file_id,

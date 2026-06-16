@@ -13,7 +13,5 @@ public class DeleteFileResponseDto {
     private String message;
     private UUID id;
     private String filename;
-    private String hash;
     private Long size;
-    private String path;
 }

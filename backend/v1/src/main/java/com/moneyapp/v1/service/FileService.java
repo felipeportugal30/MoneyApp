@@ -103,7 +103,6 @@ public class FileService {
             f.getFilename(),
             f.getHash(),
             f.getSize(),
-            f.getPath(),
             f.getCreatedAt()
         )).toList();
     }
@@ -118,7 +117,6 @@ public class FileService {
             file.getFilename(),
             file.getHash(),
             file.getSize(),
-            file.getPath(),
             file.getCreatedAt()
         );
     }
@@ -131,12 +129,10 @@ public class FileService {
         fileRepository.delete(file);
 
         return new DeleteFileResponseDto(
-            "File deleted with success", 
+            "File deleted with success",
             file.getId(),
             file.getFilename(),
-            file.getHash(),
-            file.getSize(),
-            file.getPath()
+            file.getSize()
         );
     }
 

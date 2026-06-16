@@ -8,10 +8,10 @@ import net.sourceforge.tess4j.TesseractException;
 
 import org.springframework.stereotype.Service;
 
+import com.moneyapp.v1.dto.TransactionDto;
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
 import com.moneyapp.v1.model.Account;
-import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.File;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.repository.AccountRepository;
@@ -31,11 +31,11 @@ public class FileExtractorService {
     private final FileRepository fileRepository;
     private final AccountRepository accountRepository;
 
-    public List<Transaction> process(UUID file_id, UUID accountId, User user) throws Exception, IOException, TesseractException {
+    public List<TransactionDto> process(UUID file_id, UUID accountId, User user) throws Exception, IOException, TesseractException {
         File fileEntity = fileRepository.findByIdAndUser(file_id, user)
                 .orElseThrow(() -> new NotFoundException("File not found."));
 
-        Account account = accountRepository.findById(accountId)
+        Account account = accountRepository.findByIdAndUser(accountId, user)
                 .orElseThrow(() -> new NotFoundException("Account not found."));
 
         String rawText = extractText(fileEntity);

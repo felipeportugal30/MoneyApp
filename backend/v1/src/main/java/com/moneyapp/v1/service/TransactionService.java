@@ -9,12 +9,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.moneyapp.v1.model.Account;
-import com.moneyapp.v1.model.Transaction;
-import com.moneyapp.v1.model.File;
-import com.moneyapp.v1.model.User;
-import com.moneyapp.v1.repository.TransactionRepository;
-import com.moneyapp.v1.specification.TransactionSpecification;
+import com.moneyapp.v1.dto.TransactionDto;
 import com.moneyapp.v1.dto.TransactionFilterDto;
 import com.moneyapp.v1.dto.TransactionResponseDTO;
 import com.moneyapp.v1.dto.UpdateTransactionDto;
@@ -24,6 +19,12 @@ import com.moneyapp.v1.enums.TransactionType;
 import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.exception.NotFoundException;
 import com.moneyapp.v1.exception.UnauthorizedException;
+import com.moneyapp.v1.model.Account;
+import com.moneyapp.v1.model.File;
+import com.moneyapp.v1.model.Transaction;
+import com.moneyapp.v1.model.User;
+import com.moneyapp.v1.repository.TransactionRepository;
+import com.moneyapp.v1.specification.TransactionSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +38,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public List<Transaction> saveTransactions(String json, File file, Account account, User user) throws Exception {
+    public List<TransactionDto> saveTransactions(String json, File file, Account account, User user) throws Exception {
         String cleanJson = json
             .replaceAll("```json", "")
             .replaceAll("```", "")
@@ -62,14 +63,14 @@ public class TransactionService {
             return transaction;
         }).toList();
 
-        return transactionRepository.saveAll(transactions);
+        return transactionRepository.saveAll(transactions).stream().map(this::toDto).toList();
     }
 
-    public List<Transaction> getTransactions(User requester, TransactionFilterDto filter) {
+    public List<TransactionDto> getTransactions(User requester, TransactionFilterDto filter) {
         Specification<Transaction> spec;
 
         boolean isAdminOrModerator = requester.getRole() == Role.ADMIN
-                || requester.getRole() == Role.MODERATOR;
+            || requester.getRole() == Role.MODERATOR;
 
         if (isAdminOrModerator && filter.getUserId() != null) {
             spec = TransactionSpecification.byUserId(filter.getUserId());
@@ -83,44 +84,51 @@ public class TransactionService {
         spec = spec.and(TransactionSpecification.byType(filter.getType()));
         spec = spec.and(TransactionSpecification.byDateBetween(filter.getStartDate(), filter.getEndDate()));
 
-        return transactionRepository.findAll(spec);
+        return transactionRepository.findAll(spec).stream().map(this::toDto).toList();
     }
 
-    public Transaction updateTransaction(User user, UUID transaction_id, UpdateTransactionDto request) {
+    public TransactionDto updateTransaction(User user, UUID transaction_id, UpdateTransactionDto request) {
         Transaction transaction = transactionRepository.findById(transaction_id)
             .orElseThrow(() -> new NotFoundException("Transaction not found."));
-        
-        File file = transaction.getFile();
 
+        File file = transaction.getFile();
         boolean isOwner = file.getUser().getId().equals(user.getId());
         boolean isPrivileged = user.getRole() == Role.ADMIN || user.getRole() == Role.MODERATOR;
         if (!isOwner && !isPrivileged) {
-            throw new UnauthorizedException("User is not authorize to make this action.");
+            throw new UnauthorizedException("User is not authorized to make this action.");
         }
 
         transaction.setCategory(request.getCategory());
         transaction.setUpdatedAt(new Date());
         transactionRepository.save(transaction);
 
-        return transaction; 
+        return toDto(transaction);
     }
 
-    public Transaction deleteTransaction(User user, UUID transaction_id) {
+    public void deleteTransaction(User user, UUID transaction_id) {
         Transaction transaction = transactionRepository.findById(transaction_id)
             .orElseThrow(() -> new NotFoundException("Transaction not found."));
 
         File file = transaction.getFile();
-
         boolean isOwner = file.getUser().getId().equals(user.getId());
         boolean isPrivileged = user.getRole() == Role.ADMIN || user.getRole() == Role.MODERATOR;
         if (!isOwner && !isPrivileged) {
-            throw new UnauthorizedException("User is not authorize to make this action.");
+            throw new UnauthorizedException("User is not authorized to make this action.");
         }
 
         transaction.setActive(false);
         transaction.setDeletedAt(new Date());
         transactionRepository.save(transaction);
-        
-        return transaction;
+    }
+
+    private TransactionDto toDto(Transaction t) {
+        return new TransactionDto(
+            t.getId(),
+            t.getAmount(),
+            t.getDate().toString(),
+            t.getType().name(),
+            t.getCategory().name(),
+            t.getDescription()
+        );
     }
 }

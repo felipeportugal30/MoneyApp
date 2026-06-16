@@ -1,6 +1,7 @@
 package com.moneyapp.v1.controller;
 
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moneyapp.v1.dto.DashboardResponseDto;
+import com.moneyapp.v1.exception.InvalidRequestException;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.service.DashboardService;
 
@@ -29,7 +31,12 @@ public class DashboardController {
         @AuthenticationPrincipal User user,
         @RequestParam(required = false) String month
     ) {
-        YearMonth yearMonth = month != null ? YearMonth.parse(month) : YearMonth.now();
+        YearMonth yearMonth;
+        try {
+            yearMonth = month != null ? YearMonth.parse(month) : YearMonth.now();
+        } catch (DateTimeParseException e) {
+            throw new InvalidRequestException("Invalid month format. Use yyyy-MM (e.g. 2025-01)");
+        }
         return ResponseEntity.ok(dashboardService.getDashboard(user, yearMonth));
     }
 }

@@ -15,6 +15,5 @@ public class FileListResponseDto {
     private String filename;
     private String hash;
     private Long size;
-    private String path;
     private Date createdAt;
 }

@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.moneyapp.v1.dto.TransactionDto;
 import com.moneyapp.v1.dto.TransactionFilterDto;
 import com.moneyapp.v1.dto.UpdateTransactionDto;
-import com.moneyapp.v1.model.Transaction;
 import com.moneyapp.v1.model.User;
 import com.moneyapp.v1.service.TransactionService;
 
@@ -32,7 +32,7 @@ public class TransactionController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
-    public ResponseEntity<List<Transaction>> getTransactions(
+    public ResponseEntity<List<TransactionDto>> getTransactions(
         @AuthenticationPrincipal User user,
         @ModelAttribute TransactionFilterDto filter
     ) {
@@ -41,7 +41,7 @@ public class TransactionController {
 
     @PutMapping("/{transaction_id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
-    public ResponseEntity<Transaction> updateTransactionCategory(
+    public ResponseEntity<TransactionDto> updateTransactionCategory(
         @AuthenticationPrincipal User user,
         @PathVariable UUID transaction_id,
         @RequestBody UpdateTransactionDto request
@@ -51,10 +51,11 @@ public class TransactionController {
 
     @DeleteMapping("/{transaction_id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
-    public ResponseEntity<Transaction> deleteTransaction(
+    public ResponseEntity<Void> deleteTransaction(
         @AuthenticationPrincipal User user,
         @PathVariable UUID transaction_id
     ) {
-        return ResponseEntity.ok(transactionService.deleteTransaction(user, transaction_id));
+        transactionService.deleteTransaction(user, transaction_id);
+        return ResponseEntity.noContent().build();
     }
 }
