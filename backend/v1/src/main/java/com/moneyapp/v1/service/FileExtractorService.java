@@ -26,7 +26,7 @@ public class FileExtractorService {
     private final PdfExtractorService pdfExtractor;
     private final CsvExtractorService csvExtractor;
     private final ImageExtractorService imageExtractor;
-    private final GroqService groqService;
+    private final ExtractionService extractionService;
     private final TransactionService transactionService;
     private final FileRepository fileRepository;
     private final AccountRepository accountRepository;
@@ -39,7 +39,7 @@ public class FileExtractorService {
                 .orElseThrow(() -> new NotFoundException("Account not found."));
 
         String rawText = extractText(fileEntity);
-        String json = groqService.extractTransactions(rawText, "portuguese");
+        String json = extractionService.extractTransactions(rawText, "portuguese");
 
         return transactionService.saveTransactions(json, fileEntity, account, user);
     }

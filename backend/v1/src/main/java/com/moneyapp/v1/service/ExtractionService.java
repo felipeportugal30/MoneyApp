@@ -5,22 +5,45 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestTemplate;
 
+import lombok.RequiredArgsConstructor;
 
-public class GroqService {
+@Service
+@RequiredArgsConstructor
+public class ExtractionService {
 
-    @Value("${llm.api.key}")
-    private String apiKey;
+    private final RestTemplate restTemplate;
 
-    private final WebClient webClient = WebClient.builder()
-            .baseUrl("https://api.groq.com/openai/v1")
-            .build();
+    @Value("${llm.local.url:http://localhost:11434}")
+    private String baseUrl;
+
+    @Value("${llm.local.model:llama3}")
+    private String model;
 
     @SuppressWarnings("unchecked")
-    public String extractTransactions(String rawText, String file_language) {
-        String prompt = """
+    public String extractTransactions(String rawText, String fileLanguage) {
+        String prompt = buildPrompt(rawText, fileLanguage);
+
+        Map<String, Object> body = Map.of(
+            "model",   model,
+            "stream",  false,
+            "format",  "json",
+            "messages", List.of(Map.of("role", "user", "content", prompt))
+        );
+
+        Map<String, Object> response = restTemplate.postForObject(
+            baseUrl + "/api/chat",
+            body,
+            Map.class
+        );
+
+        Map<String, Object> message = (Map<String, Object>) response.get("message");
+        return (String) message.get("content");
+    }
+
+    private String buildPrompt(String rawText, String fileLanguage) {
+        return """
         You are an AI specialized in financial data extraction.
 
         I will provide a bank statement in %s. Your task is to:
@@ -32,7 +55,7 @@ public class GroqService {
             - date: convert to DD/MM/YYYY format
             - category: MUST be one of the predefined categories below
             - type: either "EXPENSE" or "INCOME"
-        
+
         3. Category rules (follow strictly):
             - PIX payments to people or unknown recipients → category: PIX
             - Credit card bill without itemized details → category: OTHERS
@@ -49,17 +72,16 @@ public class GroqService {
 
         4. Translate all descriptions to English.
         5. Do NOT include duplicate transactions.
-        6. Return ONLY raw JSON, no markdown, no backticks, no explanations.
-        
+
         Strictly follow this JSON structure:
         {
             "transactions": [
                 {
-                "description": "string",
-                "amount": 0.00,
-                "date": "DD/MM/YYYY",
-                "category": "string",
-                "type": "EXPENSE or INCOME"
+                    "description": "string",
+                    "amount": 0.00,
+                    "date": "DD/MM/YYYY",
+                    "category": "string",
+                    "type": "EXPENSE or INCOME"
                 }
             ]
         }
@@ -75,34 +97,10 @@ public class GroqService {
         - Normalize merchant names (remove codes, extra numbers, etc.).
 
         Allowed categories (use ONLY these):
-        ALIMENTATION, TRANSPORT, HEALTH, EDUCATION, LEISURE, HOME, SHOPPING, PIX and OTHERS
-
-        IMPORTANT: Return ONLY raw JSON. Do NOT wrap in markdown code blocks. Do NOT use backticks.
+        ALIMENTATION, TRANSPORT, HEALTH, EDUCATION, LEISURE, HOME, SHOPPING, PIX, OTHERS
 
         Bank statement:
         %s
-        """
-        .formatted(file_language, rawText);
-
-        Map<String, Object> body = Map.of(
-            "model", "llama-3.3-70b-versatile",
-            "temperature", 0,
-            "messages", List.of(
-                Map.of("role", "user", "content", prompt)
-            )
-        );
-
-        Map<String, Object> response = webClient.post()
-                .uri("/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .bodyValue(body)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                .block();
-
-        List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
-        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-        return (String) message.get("content");
+        """.formatted(fileLanguage, rawText);
     }
 }

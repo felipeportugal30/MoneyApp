@@ -21,21 +21,20 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final LLMProviderFactory llmFactory;
+    private final FinancialContextService financialContextService;
 
     public SendMessageResponseDto sendMessage(User requestUser, SendMessageRequestDto request) {
-
-        List<Conversation> historico = conversationRepository
+        List<Conversation> history = conversationRepository
             .findByUserIdAndDeletedAtIsNullOrderByCreatedAtAsc(requestUser.getId());
 
         List<Map<String, String>> messages = new ArrayList<>();
-        for (Conversation c : historico) {
-            messages.add(Map.of("role", "user",      "content", c.getMessage()));
+        for (Conversation c : history) {
+            messages.add(Map.of("role", "user", "content", c.getMessage()));
             messages.add(Map.of("role", "assistant", "content", c.getAnswer()));
         }
         messages.add(Map.of("role", "user", "content", request.getMessage()));
 
-        String systemPrompt = buildSystemPrompt();
-
+        String systemPrompt = buildSystemPrompt(requestUser);
         String answer = llmFactory.getProvider().chat(systemPrompt, messages);
 
         Conversation conv = new Conversation();
@@ -47,20 +46,21 @@ public class ConversationService {
         return new SendMessageResponseDto(request.getMessage(), answer, conv.getCreatedAt(), true);
     }
 
-    private String buildSystemPrompt() {
+    private String buildSystemPrompt(User user) {
+        String context = financialContextService.buildContext(user);
         return """
             You are a personal financial advisor. Your role is to analyze the user's
             financial data and provide clear, practical, and encouraging advice.
-            
+
             Rules:
             - Always respond in the same language the user writes in.
             - Be specific with monetary values from the data provided.
-            - Never invent data that is not in the context below.
+            - Never invent data that is not in the context provided below.
             - Be concise and objective.
-            
+
             === User financial data ===
-            ...
+            %s
             ===========================
-            """;
+            """.formatted(context);
     }
 }
